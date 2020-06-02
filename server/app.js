@@ -2,6 +2,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey = fs.readFileSync('serverKey.key', 'utf8');
+var certificate = fs.readFileSync('serverCert.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate}
+
 const db = require('./api/database');
 const cors = require("cors");
 
@@ -9,6 +17,9 @@ const cors = require("cors");
 // var usersRouter = require('./routes/users');
 
 var app = express();
+
+var httpsServer = https.createServer(credentials, app)
+httpsServer.listen(8443)
 
 const allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
 
