@@ -134,5 +134,6 @@ const getLeaderboard = (request, response) => {
 
 module.exports = {
     db,
-    getUsers
+    getUsers,
+    getLeaderboard
 }
