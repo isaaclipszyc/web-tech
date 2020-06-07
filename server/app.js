@@ -2,6 +2,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey = fs.readFileSync('serverKey.key', 'utf8');
+var certificate = fs.readFileSync('serverCert.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate}
+
 const db = require('./api/database');
 const cors = require("cors");
 
@@ -10,7 +18,10 @@ const cors = require("cors");
 
 var app = express();
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(8443);
+
+const allowedOrigins = ["http://localhost:3000", "http://localhost:8080", "https://localhost:8443", "https://localhost:8081"];
 
 app.use(
     cors({
@@ -43,6 +54,7 @@ app.get('/',(request, response) => {
 });
 
 app.get('/api/getUsers', db.getUsers);
+app.get('/api/getLeaderboard', db.getLeaderboard);
 
 function notFound(request, response, next){
     const error = new Error('Not Found - ' +  request.originalUrl);
