@@ -145,10 +145,16 @@ const checkLogin = (request, response) => {
             response.status(400).json({"error":err.message});
           return;
         }
-        response.json({
+        console.log(rows.sql);
+        if (rows.values == 0){
+
+          response.status(401).json("incorrect login");
+        } else {
+          response.json({
             "message":"success",
             "data":rows
-        })
+          })
+        }
   });
 }
 

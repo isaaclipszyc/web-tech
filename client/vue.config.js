@@ -6,6 +6,7 @@ module.exports = {
   ],
   devServer: {
     port: 8081,
+    disableHostCheck: true,
     https: {
       key: fs.readFileSync('serverKey.key', 'utf8'),
       cert: fs.readFileSync('serverCert.crt', 'utf8')

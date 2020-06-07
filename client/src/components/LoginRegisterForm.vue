@@ -62,7 +62,7 @@
                                     </a>
                                     </div>
                                     <div class="text-center mt-6">
-                                    <v-btn type="submit" @click="login()">Log In</v-btn>
+                                    <v-btn @click="login()">Log In</v-btn>
                                     </div>
                                 </v-form>
                                 </v-card-text>
@@ -137,7 +137,7 @@
                                         type="password"
                                     />
                                     <div class="text-center mt-6">
-                                    <v-btn type="submit" @click="createAccount()">Create account</v-btn>
+                                    <v-btn @click="createAccount()">Create account</v-btn>
                                     </div>
                                 </v-form>
                                 </v-card-text>
@@ -164,7 +164,7 @@
                             </v-col>
                             <v-col cols="12" md="8" class="pt-6 pb-6">
                                 <v-card-text>
-                                <v-form ref="resetForm">
+                                <v-form ref="resetForm" >
                                     <h1 class="text-center display-1 mb-10">Reset Password </h1>
                                     <v-text-field
                                         v-model="emailReset"
@@ -259,8 +259,9 @@
                         if(result.status == 200){
                             this.loading = false;
                             this.$emit('authentication', true, this.usernameLogin);
+                            console.log(result.data);
                         }
-                        if(result.status == 400){
+                        if(result.status == 401){
                             this.loading = false;
                             this.$emit('authentication', false, "Username or password was incorrect.")
                         }

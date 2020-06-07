@@ -19,7 +19,6 @@ const cors = require("cors");
 var app = express();
 
 var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(8443);
 
 const allowedOrigins = ["http://localhost:3000", "http://localhost:8080", "https://localhost:8443", "https://localhost:8081"];
 
