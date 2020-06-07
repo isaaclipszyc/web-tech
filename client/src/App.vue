@@ -58,9 +58,12 @@
           <p v-if="error != ' '"> {{error}} </p>
         </div>
         <div id="loginRegisterForm" v-if="show == 'loginRegister'">
-            <LoginRegisterForm />
+            <LoginRegisterForm @authentication="authenticator"/>
         </div>
         <div v-if="show == 'leaderboard'">
+
+        </div>
+        <div v-if="show == 'game'">
 
         </div>
         <div v-if="show == 'settings'">
@@ -106,6 +109,8 @@ export default {
   data: () => ({
     title: 'Lil\' Marco',
     dialog: true,
+    errorDialog: false,
+    errorMessage: '',
     drawer: false,
     step: 0,
     show: 'loginRegister',
@@ -115,14 +120,22 @@ export default {
     state: ' ',
     height: 600,
     fixedHeader: true,
+    username: '',
+    highscore: '',
+    leaderboard: '',
   }),
 
   methods: {
 
-    // home(){
-    //   this.show = 'home';
-    //   this.title = 'Home'
-    // },
+    authenticator(successful, username){
+      if(successful){
+        this.show = 'game';
+        this.username = username;
+      } else {
+        this.show = 'loginRegister'
+        this.errorMessage = username;
+      }
+    },
     displayLeaderboard(){
       this.show = 'leaderboard'
       this.title = 'Leaderboard'

@@ -246,6 +246,7 @@
                         username: this.usernameLogin,
                         password: this.passwordLogin
                     }
+                    console.log(packaged);
                 await fetch('http://localhost:3000/api/login', {
                         method: 'POST',
                         headers: {
@@ -257,7 +258,11 @@
                         console.log('Success:', result);
                         if(result.status == 200){
                             this.loading = false;
-                            this.$emit('Authentication: ', this.usernameLogin);
+                            this.$emit('authentication', true, this.usernameLogin);
+                        }
+                        if(result.status == 400){
+                            this.loading = false;
+                            this.$emit('authentication', false, "Username or password was incorrect.")
                         }
                     })
                     .catch((error) => {
@@ -291,7 +296,7 @@
                         console.log('Success:', result);
                         if(result.status == 200){
                             this.loading = false;
-                            this.$emit('Authentication: ', this.usernameRegister);
+                            this.$emit('authentication: ', this.usernameRegister);
                         }
                     })
                     .catch((error) => {

@@ -84,10 +84,10 @@ async function removeUser(username) {
   await ps.finalize();
 }
 
-function checkLogin(username, hashedPsword) {
-  // var find = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
-  // db.run(find, [username, hashedPsword]);
-}
+// function checkLogin(username, hashedPsword) {
+//   // var find = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
+//   // db.run(find, [username, hashedPsword]);
+// }
 
 async function updateHighscore(username, highscore) {
   var ps = db.prepare('UPDATE user SET highscore = (?) WHERE username = (?)');
@@ -132,8 +132,71 @@ const getLeaderboard = (request, response) => {
       });
 }
 
+const checkLogin = (request, response) => {
+  const body = request.body;
+  const username = body.username;
+  const hashedPassword = body.password;
+  var params = [username, hashedPassword];
+  console.log(params);
+  var sql = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
+  // db.run(find, [username, hashedPassword]);
+  db.all(sql, params, (err, rows) => {
+        if (err) {
+            response.status(400).json({"error":err.message});
+          return;
+        }
+        response.json({
+            "message":"success",
+            "data":rows
+        })
+  });
+}
+
+const registerAccount = (request, response) => {
+  const body = request.body;
+  const username = body.username;
+  const hashedPassword = body.password;
+  var params = [username, hashedPassword];
+  var sql = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
+  // db.run(find, [username, hashedPassword]);
+  db.all(sql, params, (err, rows) => {
+        if (err) {
+            response.status(400).json({"error":err.message});
+          return;
+        }
+        response.json({
+            "message":"success",
+            "data":rows
+        })
+  });
+}
+
+const resetPassword = (request, response) => {
+  const body = request.body;
+  const username = body.username;
+  const hashedPassword = body.password;
+  var params = [username, hashedPassword];
+  var sql = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
+  // db.run(find, [username, hashedPassword]);
+  db.all(sql, params, (err, rows) => {
+        if (err) {
+            response.status(400).json({"error":err.message});
+          return;
+        }
+        response.json({
+            "message":"success",
+            "data":rows
+        })
+  });
+}
+
+
+
 module.exports = {
     db,
     getUsers,
-    getLeaderboard
+    getLeaderboard,
+    checkLogin,
+    registerAccount,
+    resetPassword,
 }
