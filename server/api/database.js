@@ -158,18 +158,17 @@ const checkLogin = (request, response) => {
 const registerAccount = (request, response) => {
   const body = request.body;
   const username = body.username;
+  const email = body.email;
   const hashedPassword = body.password;
-  var params = [username, hashedPassword];
-  var sql = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
-  // db.run(find, [username, hashedPassword]);
+  var params = [username, email, hashedPassword, 0];
+  var sql = 'INSERT INTO user (username, email, password, highscore) VALUES (?, ?, ?, ?)';
   db.all(sql, params, (err, rows) => {
         if (err) {
             response.status(400).json({"error":err.message});
           return;
         }
         response.json({
-            "message":"success",
-            "data":rows
+            "message":"success"
         })
   });
 }

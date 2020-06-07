@@ -286,7 +286,7 @@
                         email: this.emailRegister,
                         password: this.passwordRegister,
                     }
-                await fetch('http://localhost:3000/api/register', {
+                await fetch('http://localhost:3000/api/registerAccount', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -297,7 +297,7 @@
                         console.log('Success:', result);
                         if(result.status == 200){
                             this.loading = false;
-                            this.$emit('authentication: ', this.usernameRegister);
+                            this.$emit('authentication', true, this.usernameLogin);
                         }
                     })
                     .catch((error) => {
