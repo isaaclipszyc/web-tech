@@ -58,6 +58,16 @@
           <p v-if="error != ' '"> {{error}} </p>
         </div>
         <div id="loginRegisterForm" v-if="show == 'loginRegister'">
+            <v-dialog
+                v-model="errorDialog"
+                overlay-opacity="10%"
+            >
+                <v-card class="modal">
+                    <v-card-text>
+                        <p>{{errorMessage}}</p>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
             <LoginRegisterForm @authentication="authenticator"/>
         </div>
         <div v-if="show == 'leaderboard'">
@@ -134,6 +144,7 @@ export default {
       } else {
         this.show = 'loginRegister'
         this.errorMessage = username;
+        this.errorDialog = true;
       }
     },
     displayLeaderboard(){

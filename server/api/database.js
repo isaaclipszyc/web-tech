@@ -138,16 +138,13 @@ const checkLogin = (request, response) => {
   const hashedPassword = body.password;
   var params = [username, hashedPassword];
   console.log(params);
-  var sql = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
-  // db.run(find, [username, hashedPassword]);
+  var sql = 'SELECT * FROM user WHERE username = (?) AND password = (?)';
   db.all(sql, params, (err, rows) => {
         if (err) {
             response.status(400).json({"error":err.message});
           return;
         }
-        console.log(rows.sql);
-        if (rows.values == 0){
-
+        if(rows.length == 0){
           response.status(401).json("incorrect login");
         } else {
           response.json({
