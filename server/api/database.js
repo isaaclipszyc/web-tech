@@ -31,11 +31,14 @@
 var sqlite3 = require("sqlite3");
 var db = new sqlite3.Database("data.db");
 
+const bcrypt = require('bcrypt');
+
 db.serialize(create);
 
 function create() {
   /////////////////////////////////////////////////////////////////////////////////////////////// FOR DEVELOPMENT ONLY /////////////////////////////////////////////////////////////////////////////////////
   db.run("DROP TABLE IF EXISTS user");
+  db.run("DROP TABLE IF EXISTS images");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   db.run(`CREATE TABLE user (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,12 +57,23 @@ function create() {
         // updateHighscore('Isaac', 100);
       }
     });
+    db.run(`CREATE TABLE images(
+      username FOREIGN KEY,
+      image BLOB)`,
+      (err) => {
+        if (err) {
+        //Table already created
+      } else {
+        //Table just created
+      }
+    });
 }
 
 // addUser('Ben', 'bf17813@bristol.ac.uk', 'def');
 
 //Password should be hashed client-side before being sent to this function for storage
-async function addUser(username, email, hashedPsword) {
+async function addUser(username, email, password) {
+  const hashedPsword = bcrypt.hashSync(password, 10);
   //New user has highscore of 0
   var ps = db.prepare('INSERT INTO user (username, email, password, highscore) VALUES (?, ?, ?, ?)');
   await ps.run(username, email, hashedPsword, 0, (err) => {
@@ -135,10 +149,10 @@ const getLeaderboard = (request, response) => {
 const checkLogin = (request, response) => {
   const body = request.body;
   const username = body.username;
-  const hashedPassword = body.password;
-  var params = [username, hashedPassword];
+  const password = body.password;
+  var params = [username];
   console.log(params);
-  var sql = 'SELECT * FROM user WHERE username = (?) AND password = (?)';
+  var sql = 'SELECT password FROM user WHERE username = (?)';
   db.all(sql, params, (err, rows) => {
         if (err) {
             response.status(400).json({"error":err.message});
@@ -147,10 +161,19 @@ const checkLogin = (request, response) => {
         if(rows.length == 0){
           response.status(401).json("incorrect login");
         } else {
-          response.json({
-            "message":"success",
-            "data":rows
-          })
+          const hash = `${rows[0].password}`;
+          if(bcrypt.compareSync(password, hash)) {
+             // Passwords match
+             response.json({
+               "message":"success",
+               "data":rows
+             })
+          } else {
+             // Passwords don't match
+             response.status(401).json("incorrect login");
+          }
+
+
         }
   });
 }
@@ -159,7 +182,7 @@ const registerAccount = (request, response) => {
   const body = request.body;
   const username = body.username;
   const email = body.email;
-  const hashedPassword = body.password;
+  const hashedPassword = bcrypt.hashSync(body.password, 10);
   var params = [username, email, hashedPassword, 0];
   var sql = 'INSERT INTO user (username, email, password, highscore) VALUES (?, ?, ?, ?)';
   db.all(sql, params, (err, rows) => {
