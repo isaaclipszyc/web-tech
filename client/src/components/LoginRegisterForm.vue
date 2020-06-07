@@ -227,7 +227,7 @@
             if (this.passwordConfirmRegister) {
                 const rule = v => (!!v && v) === this.passwordRegister || 'Passwords do not match';
                 rules.push(rule);
-            } 
+            }
             return rules;
         }
     },
