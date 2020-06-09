@@ -246,7 +246,6 @@
                         username: this.usernameLogin,
                         password: this.passwordLogin
                     }
-                    console.log(packaged);
                 await fetch('http://localhost:3000/api/login', {
                         method: 'POST',
                         headers: {
@@ -259,7 +258,6 @@
                         if(result.status == 200){
                             this.loading = false;
                             this.$emit('authentication', true, this.usernameLogin);
-                            console.log(result.data);
                         }
                         if(result.status == 401){
                             this.loading = false;

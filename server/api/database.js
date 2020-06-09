@@ -37,7 +37,7 @@ db.serialize(create);
 
 function create() {
   /////////////////////////////////////////////////////////////////////////////////////////////// FOR DEVELOPMENT ONLY /////////////////////////////////////////////////////////////////////////////////////
-  db.run("DROP TABLE IF EXISTS user");
+  // db.run("DROP TABLE IF EXISTS user");
   db.run("DROP TABLE IF EXISTS images");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   db.run(`CREATE TABLE user (
@@ -103,16 +103,43 @@ async function removeUser(username) {
 //   // db.run(find, [username, hashedPsword]);
 // }
 
-async function updateHighscore(username, highscore) {
-  var ps = db.prepare('UPDATE user SET highscore = (?) WHERE username = (?)');
-  await ps.run(highscore, username, (err) => {
-    if (err) {
-      //Fields don't match
-    } else {
-      //Insertion completed
-    }
-  });
-  await ps.finalize();
+
+const updateHighscore = (request, response) => {
+  var sql = "UPDATE user SET highscore = (?) WHERE username = (?)";
+  const body = request.body;
+  const username = body.username;
+  const highscore = body.highscore;
+  var params = [highscore, username]
+  db.all(sql, params, (err, rows) => {
+      if (err) {
+          response.status(400).json({"error":err.message});
+        return;
+      }
+      response.json({
+          "message":"success",
+          "data":rows
+      })
+    });
+}
+
+const getHighscore = (request, response) => {
+  var sql = "SELECT * FROM user WHERE username = (?)";
+  const body = request.body;
+  const username = body.username;
+  var params = [username]
+  console.log(params);
+  db.all(sql, params, (err, rows) => {
+      if (err) {
+          response.status(400).json({"error":err.message});
+         
+        return;
+      }
+      console.log(rows)
+      response.json({
+          "message":"success",
+          "data":rows
+      })
+    });
 }
 
 
@@ -151,7 +178,6 @@ const checkLogin = (request, response) => {
   const username = body.username;
   const password = body.password;
   var params = [username];
-  console.log(params);
   var sql = 'SELECT password FROM user WHERE username = (?)';
   db.all(sql, params, (err, rows) => {
         if (err) {
@@ -224,4 +250,6 @@ module.exports = {
     checkLogin,
     registerAccount,
     resetPassword,
+    updateHighscore,
+    getHighscore,
 }

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <v-app>
+      <v-app v-bind:style="{ backgroundImage: 'url(' + require('./assets/galaxy.jpg') + ')', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}">
         <v-app-bar
           app
           dark
@@ -54,79 +54,110 @@
               <v-btn @click="logout()" >Logout</v-btn>
             </div>
           </template>
-        </v-navigation-drawer>
+        </v-navigation-drawer>>
         <div v-if="show == 'loading'">
           <p> {{state}} </p>
           <p v-if="error != ' '"> {{error}} </p>
         </div>
         <div id="loginRegisterForm" v-if="show == 'loginRegister'">
             <v-dialog
-                v-model="errorDialog"
-                overlay-opacity="10%"
+              v-model="errorDialog"
+              overlay-opacity="10%"
             >
-                <v-card class="modal">
-                    <v-card-text>
-                        <p>{{errorMessage}}</p>
-                    </v-card-text>
-                </v-card>
+              <v-card class="modal">
+                <v-card-text>
+                  <p>{{errorMessage}}</p>
+                </v-card-text>
+              </v-card>
             </v-dialog>
             <LoginRegisterForm @authentication="authenticator"/>
         </div>
         <div v-if="show == 'leaderboard'">
-
           <v-data-table
-              :headers="headers"
-              :items="data"
-              class="elevation-1"
-              fixed-header
-              id ="dataTable"
-            >
-            </v-data-table>
+            :headers="headers"
+            :items="data"
+            class="elevation-1"
+            fixed-header
+            id ="dataTable"
+          >
+          </v-data-table>
         </div>
-        <div v-if="show == 'game'">
-          <div id="scoreboard">
-            <p>Highscore: {{highscore}}</p>
-          </div>
-           <v-dialog
-                v-model="highscoreDialog"
-                overlay-opacity="10%"
+        <div v-if="show == 'game'" class="grid-container">
+          <div class="item1"></div>
+          <div class="item2"></div>
+          <div class="item3"></div>  
+          <div class="item4">Highscore: {{highscore}}</div>            
+          <div class="item5">
+            <v-dialog
+              v-model="highscoreDialog"
+              overlay-opacity="20%"
+              width="400"
             >
-                <v-card class="modal">
-                    <v-card-text>
-                        <p>You got a new highschore!!! You beat your previous highschore by {{difference}} points!</p>
-                    </v-card-text>
-                </v-card>
+              <v-card class="modal">
+                <v-card-text>
+                  <p style="margin-top: 2%;">You got a new highscore!!!</p>
+                  <p> You beat your previous highscore by {{difference}} points!</p>
+                </v-card-text>
+              </v-card>
             </v-dialog>
-          <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
-          <div>
+              <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
+          </div>
+          <div class="item6"></div>
+          <div class="item7"></div>
+          <div class="item8">
             <v-btn @click="beginGame()">Play</v-btn>
           </div>
+          <div class="item9"></div>
         </div>
         <div v-if="show == 'settings'">
-
+          <v-card class="modal">
+              <v-card-text>
+                <v-form ref="settings">
+                  <v-text-field
+                      v-model="usernameLogin"
+                      label="Username"
+                      :rules="usernameRules"
+                      append-icon="mdi-account-box"
+                      type="text"
+                  />
+                  <v-text-field
+                      id="password"
+                      v-model="passwordLogin"
+                      label="Password"
+                      :rules="passwordRules"
+                      append-icon="mdi-lock"
+                      type="password"
+                  />
+                  <div class="text-center">
+                  <a
+                      href="#"
+                      class="mt-3 overline no-text-decoration"
+                      @click="step = 3"
+                  >
+                      Forgot your password?
+                  </a>
+                  </div>
+                  <div class="text-center mt-6">
+                  <v-btn @click="login()">Log In</v-btn>
+                  </div>
+              </v-form>
+              </v-card-text>
+            </v-card>
         </div>
         <div v-if="show == 'customise'">
 
         </div>
-
-
-        <!--<div v-if="show == 'table'">
-          <p v-if="state == 'error'"> {{error}} </p>
-          <p v-else-if="state == 'loading'"> Loading data...</p>
-          <div id="table" v-else-if="state == 'loaded'">
-            <v-data-table
-              :headers="headers"
-              :items="data"
-              class="elevation-1"
-              id ="dataTable"
-            >
-            </v-data-table>
-          </div>
-          <div>
-            <v-btn large color="primary" id="home_button" @click="home()">Home</v-btn>
-          </div>
-        </div> -->
-      <!-- <p> {{headers}} </p> -->
+        <v-dialog
+          v-model="welcomeDialog"
+          overlay-opacity="20%"
+          width="400"
+        >
+          <v-card class="modal">
+            <v-card-text>
+              <p style="margin-top: 2%;">Welcome {{username}}!</p>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-app>
   </div>
 </template>
@@ -145,7 +176,7 @@ export default {
   },
 
   data: () => ({
-    title: 'Lil\' Marco',
+    title: 'Wormhole',
     dialog: true,
     errorDialog: false,
     errorMessage: '',
@@ -163,6 +194,7 @@ export default {
     highscore: 0,
     highscoreDialog: false,
     difference: 0,
+    welcomeDialog: false,
   }),
 
   methods: {
@@ -171,6 +203,8 @@ export default {
       if(successful){
         this.show = 'game';
         this.username = username;
+        this.welcomeDialog = true;
+        this.getHighscore();
       } else {
         this.show = 'loginRegister'
         this.errorMessage = username;
@@ -189,7 +223,7 @@ export default {
     },
     displayGame(){
       this.show = 'game';
-      this.title = 'Lil\' Marco';
+      this.title = 'Wormhole';
       this.drawer = false;
     },
     displayCustomise(){
@@ -204,8 +238,9 @@ export default {
     },
     logout(){
       this.username = '';
+      this.highscore = 0;
       this.drawer = false;
-      this.title = 'Lil\' Marco'
+      this.title = 'Wormhole'
       this.show = 'loginRegister';
     },
     getHeaders(){
@@ -254,7 +289,7 @@ export default {
         this.difference = value - this.highscore;
         this.highscore = value;
         this.saveHighscore();
-        this.highschoreDialog = true;
+        this.highscoreDialog = true;
       }
       this.gamePlaying = false;
     },
@@ -262,9 +297,9 @@ export default {
       try{
           var packaged = {
               username: this.username,
-              highscore: this.highschore,
+              highscore: this.highscore,
           }
-      await fetch('http://localhost:3000/api/newHighscore', {
+          await fetch('http://localhost:3000/api/updateHighscore', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
@@ -280,6 +315,30 @@ export default {
           .catch((error) => {
               console.error('Error:', error);
           });
+      } catch(err){
+          this.error = err;
+          this.state = 'error';
+      }
+    },
+    async getHighscore(){
+        try{
+          var packaged = {
+              username: this.username,
+          }
+          const response = await fetch('http://localhost:3000/api/getHighscore', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(packaged)
+          })
+          var json = await response.json();
+          var data = json.data;
+          this.highscore = data[0].highscore;
+          if(this.highscore == null){
+            this.highscore = 0;
+          }
+
       } catch(err){
           this.error = err;
           this.state = 'error';
@@ -301,12 +360,35 @@ export default {
   /* margin-top: 60px; */
 }
 
-#scoreboard {
-  margin-top: 5%;
-}
+
+
 
 #logoutButton {
   margin-bottom: 10%;
+}
+
+#gameArea {
+  display: grid;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  margin-top: 5%;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.grid-container > div {
+  background-color: rgba(187, 111, 231, 0.9);
+  text-align: center;
+  font-size: 30px;
+  vertical-align: middle;
+}
+
+
+#scoreboard {
+  margin-top: 5%;
 }
 
 /* #users_button {

@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <p> Score: {{scores}} </p>
-        <canvas ref="board" id="game-canvas" :width="canvasSize" :height="canvasSize"></canvas>
+    <div id="gameArea">
+    <p> Score: {{scores}} </p>
+    <canvas ref="board" id="game-canvas" :width="canvasSize" :height="canvasSize"></canvas>
     </div>
 </template>
 
@@ -16,7 +16,7 @@
     data: () => ({
         cellSize: 10,
         boardSize: 50,
-        speed: 10,
+        speed: 20,
         scores: 0,
 
         constants: [{
@@ -128,7 +128,8 @@
             setTimeout(this.move, this.getMoveDelay());
         },
         clear() {
-            this.board.clearRect(0, 0, this.canvasSize, this.canvasSize);
+            this.board.fillStyle = "white";
+            this.board.fillRect(0, 0, this.canvasSize, this.canvasSize);
         },
         drawSnakeBody({ x, y }) {
             this.board.rect(
@@ -141,7 +142,7 @@
             this.board.fill();
         },
         getMoveDelay() {
-            return (2 / Number(this.speed)) * 1000;
+            return (1 / Number(this.speed)) * 1000;
         },
         outOfBounds({ x, y }) {
             return x < 0 || y < 0 || x >= this.boardSize || y >= this.boardSize;
@@ -200,8 +201,9 @@
 <style scoped>
     #game-canvas {
         border: 1px solid #ccc;
-        /* margin-top: 10%; */
+        background: white;
     }
+
 </style>
 
 

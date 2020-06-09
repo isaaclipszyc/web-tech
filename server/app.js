@@ -54,9 +54,11 @@ app.get('/',(request, response) => {
 
 app.get('/api/getUsers', db.getUsers);
 app.get('/api/getLeaderboard', db.getLeaderboard);
+app.post('/api/getHighscore', db.getHighscore)
 app.post('/api/login', db.checkLogin);
 app.post('/api/registerAccount', db.registerAccount);
 app.post('/api/resetPassword', db.resetPassword);
+app.post('/api/updateHighscore', db.updateHighscore);
 
 function notFound(request, response, next){
     const error = new Error('Not Found - ' +  request.originalUrl);
