@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <v-app>
+      <v-app v-bind:style="{ backgroundImage: 'url(' + require('./assets/galaxy.jpg') + ')', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}">
         <v-app-bar
           app
           dark
@@ -10,8 +10,10 @@
         </v-app-bar>
         <v-navigation-drawer
           v-model="drawer"
-          absolute
           temporary
+          app
+          height="90%"
+          id="navTool"
         >
           <v-list
             nav
@@ -37,7 +39,7 @@
                 <v-list-item-icon>
                   <v-icon>mdi-tshirt-crew</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Character</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Profile</v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-icon>
@@ -47,55 +49,111 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
-        </v-navigation-drawer>
-
-        <!-- <div v-if="show == 'login'">
-          <p style="margin: 5%"> This is a simple SPA that uses the Vue framework for the client-side (with Vuetify for nicely working and aesthetically pleasing components) and Express for the server-side. It uses sqlite3 as an embedded SQL database. This project was created by Isaac Lipszyc (il17557) and Ben Fozard (bf17813).</p>
-          <v-btn large color="primary" id="users_button" @click="showUsers()">Users</v-btn>
-        </div> -->
+          <template v-slot:append>
+            <div id="logoutButton">
+              <v-btn @click="logout()" >Logout</v-btn>
+            </div>
+          </template>
+        </v-navigation-drawer>>
         <div v-if="show == 'loading'">
           <p> {{state}} </p>
           <p v-if="error != ' '"> {{error}} </p>
         </div>
         <div id="loginRegisterForm" v-if="show == 'loginRegister'">
             <v-dialog
-                v-model="errorDialog"
-                overlay-opacity="10%"
+              v-model="errorDialog"
+              overlay-opacity="10%"
             >
-                <v-card class="modal">
-                    <v-card-text>
-                        <p>{{errorMessage}}</p>
-                    </v-card-text>
-                </v-card>
+              <v-card class="modal">
+                <v-card-text>
+                  <p>{{errorMessage}}</p>
+                </v-card-text>
+              </v-card>
             </v-dialog>
             <LoginRegisterForm @authentication="authenticator"/>
         </div>
         <div v-if="show == 'leaderboard'">
-
           <v-data-table
-              :headers="headers"
-              :items="data"
-              class="elevation-1"
-              fixed-header
-              id ="dataTable"
-            >
-            </v-data-table>
+            :headers="headers"
+            :items="data"
+            class="elevation-1"
+            fixed-header
+            id ="dataTable"
+          >
+          </v-data-table>
         </div>
-        <div v-if="show == 'game'">
-
+        <div v-if="show == 'game'" class="grid-container">
+          <div class="item1"></div>
+          <div class="item2"></div>
+          <div class="item3"></div>
+          <div class="item4">Highscore: {{highscore}}</div>
+          <div class="item5">
+            <v-dialog
+              v-model="highscoreDialog"
+              overlay-opacity="20%"
+              width="400"
+            >
+              <v-card class="modal">
+                <v-card-text>
+                  <p style="margin-top: 2%;">You got a new highscore!!!</p>
+                  <p> You beat your previous highscore by {{difference}} points!</p>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+              <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
+          </div>
+          <div class="item6"></div>
+          <div class="item7"></div>
+          <div class="item8">
+            <v-btn @click="beginGame()">Play</v-btn>
+          </div>
+          <div class="item9"></div>
         </div>
         <div v-if="show == 'settings'">
-
+          <v-card class="modal">
+              <v-card-text>
+                <v-form ref="settings">
+                  <v-text-field
+                      v-model="usernameLogin"
+                      label="Username"
+                      :rules="usernameRules"
+                      append-icon="mdi-account-box"
+                      type="text"
+                  />
+                  <v-text-field
+                      id="password"
+                      v-model="passwordLogin"
+                      label="Password"
+                      :rules="passwordRules"
+                      append-icon="mdi-lock"
+                      type="password"
+                  />
+                  <div class="text-center">
+                  <a
+                      href="#"
+                      class="mt-3 overline no-text-decoration"
+                      @click="step = 3"
+                  >
+                      Forgot your password?
+                  </a>
+                  </div>
+                  <div class="text-center mt-6">
+                  <v-btn @click="login()">Log In</v-btn>
+                  </div>
+              </v-form>
+              </v-card-text>
+            </v-card>
         </div>
         <div v-if="show == 'customise'">
 
-        <v-row justify="space-around">
-          <v-avatar size="62">>
-            <img id="profilepic" src="http://localhost:3000/uploads/1591719557881.png"/>
-          </v-avatar>
-        </v-row>
+        <v-card>
+          <v-row justify="space-around">
+            <v-avatar size="62">>
+              <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
+            </v-avatar>
+          </v-row>
+        </v-card>
 
-          <template>
             <v-card>
               <v-file-input
                 accept="image/png, image/jpeg, image/bmp"
@@ -109,28 +167,19 @@
                 <v-btn right @click="importImage">Set avatar</v-btn>
               </v-card-actions>
             </v-card>
-          </template>
 
         </div>
-
-
-        <!--<div v-if="show == 'table'">
-          <p v-if="state == 'error'"> {{error}} </p>
-          <p v-else-if="state == 'loading'"> Loading data...</p>
-          <div id="table" v-else-if="state == 'loaded'">
-            <v-data-table
-              :headers="headers"
-              :items="data"
-              class="elevation-1"
-              id ="dataTable"
-            >
-            </v-data-table>
-          </div>
-          <div>
-            <v-btn large color="primary" id="home_button" @click="home()">Home</v-btn>
-          </div>
-        </div> -->
-      <!-- <p> {{headers}} </p> -->
+        <v-dialog
+          v-model="welcomeDialog"
+          overlay-opacity="20%"
+          width="400"
+        >
+          <v-card class="modal">
+            <v-card-text>
+              <p style="margin-top: 2%;">Welcome {{username}}!</p>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-app>
   </div>
 </template>
@@ -138,17 +187,19 @@
 <script>
 
 import LoginRegisterForm from './components/LoginRegisterForm.vue';
+import Game from './components/Game.vue';
 
 
 export default {
   name: 'App',
 
   components: {
-    LoginRegisterForm
+    LoginRegisterForm,
+    Game,
   },
 
   data: () => ({
-    title: 'Lil\' Marco',
+    title: 'Wormhole',
     dialog: true,
     errorDialog: false,
     errorMessage: '',
@@ -159,15 +210,18 @@ export default {
     data: [],
     error: ' ',
     state: ' ',
-    height: 600,
     fixedHeader: true,
     username: '',
-    highscore: '',
     leaderboard: '',
     showUpload: true,
     previewImage: null,
     selectedFile: null,
     fileData: null,
+    gamePlaying: false,
+    highscore: 0,
+    highscoreDialog: false,
+    difference: 0,
+    welcomeDialog: false,
   }),
 
   methods: {
@@ -176,6 +230,8 @@ export default {
       if(successful){
         this.show = 'game';
         this.username = username;
+        this.welcomeDialog = true;
+        this.getHighscore();
       } else {
         this.show = 'loginRegister'
         this.errorMessage = username;
@@ -193,21 +249,30 @@ export default {
       this.state = 'loaded';
     },
     displayGame(){
-      this.show = 'game'
-      this.title = 'Lil\' Marco'
-      this.drawer = false
+      this.show = 'game';
+      this.title = 'Wormhole';
+      this.drawer = false;
     },
     displayCustomise(){
       this.show = 'customise';
+      this.setProfileImage();
+      this.title = 'Customise profile';
+      this.drawer = false;
+    },
+    displaySettings(){
+      this.show = 'settings';
       this.title = 'Customise Character';
       this.drawer = false;
       this.state = 'loaded';
-      this.setProfileImage();
+      //this.title = 'Account Settings';
+      //this.drawer = false;
     },
-    displaySettings(){
-      this.show = 'settings'
-      this.title = 'Account Settings'
-      this.drawer = false
+    logout(){
+      this.username = '';
+      this.highscore = 0;
+      this.drawer = false;
+      this.title = 'Wormhole'
+      this.show = 'loginRegister';
     },
     getHeaders(){
       var s = new Set();
@@ -254,7 +319,7 @@ export default {
       let formData = new FormData();
       formData.append("test", this.selectedFile);
 
-      await fetch('http://localhost:3000/api/upload?uname=' + 'Isaac', {
+      await fetch('http://localhost:3000/api/upload?uname=' + this.username, {
         method: 'POST',
         body: formData
       })
@@ -268,7 +333,7 @@ export default {
           console.error('Error:', error);
       });
 
-      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + 'Isaac');
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
       this.json = await data.json();
       this.data = this.json.data;
       //console.log(this.data);
@@ -281,14 +346,78 @@ export default {
       console.log('HERE');
     },
     async setProfileImage() {
-      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + 'Isaac');
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
       this.json = await data.json();
       this.data = this.json.data;
 
       var imgPath = "http://localhost:3000/" + this.data;
 
       document.getElementById('profilepic').src=imgPath;
+    },
+    beginGame() {
+      this.gamePlaying = true;
+    },
+    printScore(value) {
+      if(value > this.highscore){
+        this.difference = value - this.highscore;
+        this.highscore = value;
+        this.saveHighscore();
+        this.highscoreDialog = true;
+      }
+      this.gamePlaying = false;
+    },
+    async saveHighscore(){
+      try{
+          var packaged = {
+              username: this.username,
+              highscore: this.highscore,
+          }
+          await fetch('http://localhost:3000/api/updateHighscore', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(packaged)
+          })
+          .then((result) => {
+              console.log('Success:', result);
+              if(result.status != 200){
+                  this.saveHighscore();
+              }
+          })
+          .catch((error) => {
+              console.error('Error:', error);
+          });
+      } catch(err){
+          this.error = err;
+          this.state = 'error';
+      }
+    },
+    async getHighscore(){
+        try{
+          var packaged = {
+              username: this.username,
+          }
+          const response = await fetch('http://localhost:3000/api/getHighscore', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(packaged)
+          })
+          var json = await response.json();
+          var data = json.data;
+          this.highscore = data[0].highscore;
+          if(this.highscore == null){
+            this.highscore = 0;
+          }
+
+      } catch(err){
+          this.error = err;
+          this.state = 'error';
+      }
     }
+
   }
 
 };
@@ -301,19 +430,57 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
 }
 
-#users_button {
+
+
+
+#logoutButton {
+  margin-bottom: 10%;
+}
+
+#gameArea {
+  display: grid;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  margin-top: 5%;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.grid-container > div {
+  background-color: rgba(187, 111, 231, 0.9);
+  text-align: center;
+  font-size: 30px;
+  vertical-align: middle;
+}
+
+
+#scoreboard {
+  margin-top: 5%;
+}
+
+/* #users_button {
   position: relative;
   margin: 10%;
   top: 50%
-}
+} */
 
 #table {
   margin: 5%;
 }
 
+#loginRegisterForm {
+  margin-top: 2%;
+}
+
+#navTool {
+  margin-top: 60px;
+}
 
 
 table th + th {

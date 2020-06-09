@@ -68,9 +68,11 @@ app.get('/',(request, response) => {
 app.get('/api/getUsers', db.getUsers);
 app.get('/api/getLeaderboard', db.getLeaderboard);
 app.get('/api/getProfilePicture', db.getProfilePicture);
+app.post('/api/getHighscore', db.getHighscore)
 app.post('/api/login', db.checkLogin);
 app.post('/api/registerAccount', db.registerAccount);
 app.post('/api/resetPassword', db.resetPassword);
+app.post('/api/updateHighscore', db.updateHighscore);
 
 app.post('/api/upload', upload.single('test'), function (req, res, next) {
   console.log(req.file.path);

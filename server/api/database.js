@@ -1,32 +1,3 @@
-// var sqlite3 = require('sqlite3').verbose();
-// const DBSOURCE = "db.sqlite";
-//
-// //initialises database
-// let db = new sqlite3.Database(DBSOURCE, (err) => {
-//     if (err) {
-//       // Cannot open database
-//       console.error(err.message);
-//       throw err
-//     }else{
-//         console.log('Connected to the SQLite database.');
-//         db.run(`CREATE TABLE user (
-//             id INTEGER PRIMARY KEY AUTOINCREMENT,
-//             username text UNIQUE,
-//             CONSTRAINT username_unique UNIQUE (username),
-//             )`,
-//         (err) => {
-//             if (err) {
-//                 // Table already created
-//             }else{
-//                 // Table just created, creating some rows
-//                 var insert = 'INSERT INTO user (username) VALUES (?)';
-//                 db.run(insert, ["isaac"]);
-//                 db.run(insert, ["ben"]);
-//             }
-//         });
-//     }
-// });
-
 "use strict";
 var sqlite3 = require("sqlite3");
 var db = new sqlite3.Database("data.db");
@@ -37,7 +8,7 @@ db.serialize(create);
 
 function create() {
   /////////////////////////////////////////////////////////////////////////////////////////////// FOR DEVELOPMENT ONLY /////////////////////////////////////////////////////////////////////////////////////
-  db.run("DROP TABLE IF EXISTS user");
+  // db.run("DROP TABLE IF EXISTS user");
   // db.run("DROP TABLE IF EXISTS images");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   db.run(`CREATE TABLE user (
@@ -87,21 +58,43 @@ async function removeUser(username) {
   await ps.finalize();
 }
 
-// function checkLogin(username, hashedPsword) {
-//   // var find = 'SELECT EXISTS(SELECT 1 FROM user WHERE username = (?) AND password = (?))';
-//   // db.run(find, [username, hashedPsword]);
-// }
 
-async function updateHighscore(username, highscore) {
-  var ps = db.prepare('UPDATE user SET highscore = (?) WHERE username = (?)');
-  await ps.run(highscore, username, (err) => {
-    if (err) {
-      //Fields don't match
-    } else {
-      //Insertion completed
-    }
-  });
-  await ps.finalize();
+const updateHighscore = (request, response) => {
+  var sql = "UPDATE user SET highscore = (?) WHERE username = (?)";
+  const body = request.body;
+  const username = body.username;
+  const highscore = body.highscore;
+  var params = [highscore, username]
+  db.all(sql, params, (err, rows) => {
+      if (err) {
+          response.status(400).json({"error":err.message});
+        return;
+      }
+      response.json({
+          "message":"success",
+          "data":rows
+      })
+    });
+}
+
+const getHighscore = (request, response) => {
+  var sql = "SELECT * FROM user WHERE username = (?)";
+  const body = request.body;
+  const username = body.username;
+  var params = [username]
+  console.log(params);
+  db.all(sql, params, (err, rows) => {
+      if (err) {
+          response.status(400).json({"error":err.message});
+
+        return;
+      }
+      console.log(rows)
+      response.json({
+          "message":"success",
+          "data":rows
+      })
+    });
 }
 
 async function storeFilePath(username, path) {
@@ -129,11 +122,21 @@ const getProfilePicture = (request, response) => {
         return;
         }
         else {
-          const filepath = `${rows[0].imagePath}`;
-          response.json({
-              "message":"success",
-              "data":filepath
-          })
+          if(rows.length != 0){
+            const filepath = `${rows[0].imagePath}`;
+            response.json({
+                "message":"success",
+                "data":filepath
+            })
+          }
+          else {
+            response.json({
+                "message":"success",
+                "data":"uploads\\default.png"
+            })
+          }
+
+
         }
   });
 }
@@ -174,7 +177,6 @@ const checkLogin = (request, response) => {
   const username = body.username;
   const password = body.password;
   var params = [username];
-  console.log(params);
   var sql = 'SELECT password FROM user WHERE username = (?)';
   db.all(sql, params, (err, rows) => {
         if (err) {
@@ -258,6 +260,8 @@ module.exports = {
     checkLogin,
     registerAccount,
     resetPassword,
+    updateHighscore,
+    getHighscore,
     upload,
     storeFilePath,
     getProfilePicture
