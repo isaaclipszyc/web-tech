@@ -74,6 +74,14 @@
         </div>
         <div v-if="show == 'leaderboard'">
 
+          <v-data-table
+              :headers="headers"
+              :items="data"
+              class="elevation-1"
+              fixed-header
+              id ="dataTable"
+            >
+            </v-data-table>
         </div>
         <div v-if="show == 'game'">
           <div id="scoreboard">
@@ -95,17 +103,17 @@
           </div>
         </div>
         <div v-if="show == 'settings'">
-          
+
         </div>
         <div v-if="show == 'customise'">
 
         </div>
-        
+
 
         <!--<div v-if="show == 'table'">
           <p v-if="state == 'error'"> {{error}} </p>
           <p v-else-if="state == 'loading'"> Loading data...</p>
-          <div id="table" v-else-if="state == 'loaded'"> 
+          <div id="table" v-else-if="state == 'loaded'">
             <v-data-table
               :headers="headers"
               :items="data"
@@ -169,10 +177,15 @@ export default {
         this.errorDialog = true;
       }
     },
-    displayLeaderboard(){
+    async displayLeaderboard(){
       this.show = 'leaderboard';
       this.title = 'Leaderboard';
       this.drawer = false;
+      const data = await fetch('http://localhost:3000/api/getLeaderboard');
+      this.json = await data.json();
+      this.data = this.json.data;
+      this.headers = this.getHeaders();
+      this.state = 'loaded';
     },
     displayGame(){
       this.show = 'game';
@@ -320,7 +333,7 @@ table th + th {
   border-bottom: 2px solid black;
   text-align: center;
 }
-table td + td { 
+table td + td {
   border-left:1px solid #dddddd;
   text-align: center;
 }
