@@ -38,14 +38,15 @@ db.serialize(create);
 function create() {
   /////////////////////////////////////////////////////////////////////////////////////////////// FOR DEVELOPMENT ONLY /////////////////////////////////////////////////////////////////////////////////////
   db.run("DROP TABLE IF EXISTS user");
-  db.run("DROP TABLE IF EXISTS images");
+  // db.run("DROP TABLE IF EXISTS images");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   db.run(`CREATE TABLE user (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username text UNIQUE,
       email text UNIQUE,
       password text,
-      highscore INTEGER(8))`,
+      highscore INTEGER(8),
+      imagePath text)`,
       (err) => {
         if (err) {
         //Table already created
@@ -57,26 +58,14 @@ function create() {
         // updateHighscore('Isaac', 100);
       }
     });
-    db.run(`CREATE TABLE images(
-      username FOREIGN KEY,
-      image BLOB)`,
-      (err) => {
-        if (err) {
-        //Table already created
-      } else {
-        //Table just created
-      }
-    });
 }
 
-// addUser('Ben', 'bf17813@bristol.ac.uk', 'def');
 
-//Password should be hashed client-side before being sent to this function for storage
 async function addUser(username, email, password) {
   const hashedPsword = bcrypt.hashSync(password, 10);
   //New user has highscore of 0
-  var ps = db.prepare('INSERT INTO user (username, email, password, highscore) VALUES (?, ?, ?, ?)');
-  await ps.run(username, email, hashedPsword, 0, (err) => {
+  var ps = db.prepare('INSERT INTO user (username, email, password, highscore, imagePath) VALUES (?, ?, ?, ?, ?)');
+  await ps.run(username, email, hashedPsword, 0, 'uploads\\default.png' , (err) => {
     if (err) {
       //Fields don't match
     } else {
@@ -113,6 +102,40 @@ async function updateHighscore(username, highscore) {
     }
   });
   await ps.finalize();
+}
+
+async function storeFilePath(username, path) {
+  var ps = db.prepare('UPDATE user SET imagePath = (?) WHERE username = (?)');
+  await ps.run(path, username, (err) => {
+    if (err) {
+      //Fields don't match
+      console.log("Error storing path");
+    } else {
+      //Insertion completed
+    }
+  });
+  await ps.finalize();
+  console.log("Finished storing path");
+}
+
+const getProfilePicture = (request, response) => {
+  var sql = 'SELECT imagePath FROM user WHERE username = (?)';
+  var uname = request.query.uname;
+  // console.log(uname);
+  var params = [uname];
+  db.all(sql, params, (err, rows) => {
+        if (err) {
+          response.status(400).json({"error":err.message});
+        return;
+        }
+        else {
+          const filepath = `${rows[0].imagePath}`;
+          response.json({
+              "message":"success",
+              "data":filepath
+          })
+        }
+  });
 }
 
 
@@ -197,6 +220,7 @@ const registerAccount = (request, response) => {
 }
 
 const resetPassword = (request, response) => {
+  console.log("Here2");
   const body = request.body;
   const username = body.username;
   const hashedPassword = body.password;
@@ -215,6 +239,16 @@ const resetPassword = (request, response) => {
   });
 }
 
+const upload = (request, response) => {
+  const body = request.body;
+  console.log("InUpload");
+  try {
+    res.send(req.file);
+  }catch(err) {
+    res.send(400);
+  }
+}
+
 
 
 module.exports = {
@@ -224,4 +258,7 @@ module.exports = {
     checkLogin,
     registerAccount,
     resetPassword,
+    upload,
+    storeFilePath,
+    getProfilePicture
 }

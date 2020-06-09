@@ -89,6 +89,28 @@
         </div>
         <div v-if="show == 'customise'">
 
+        <v-row justify="space-around">
+          <v-avatar size="62">>
+            <img id="profilepic" src="http://localhost:3000/uploads/1591719557881.png"/>
+          </v-avatar>
+        </v-row>
+
+          <template>
+            <v-card>
+              <v-file-input
+                accept="image/png, image/jpeg, image/bmp"
+                placeholder="Pick an avatar"
+                prepend-icon="mdi-camera"
+                label="Avatar"
+                v-model="selectedFile"
+              ></v-file-input>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn right @click="importImage">Set avatar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+
         </div>
 
 
@@ -117,6 +139,7 @@
 
 import LoginRegisterForm from './components/LoginRegisterForm.vue';
 
+
 export default {
   name: 'App',
 
@@ -141,6 +164,10 @@ export default {
     username: '',
     highscore: '',
     leaderboard: '',
+    showUpload: true,
+    previewImage: null,
+    selectedFile: null,
+    fileData: null,
   }),
 
   methods: {
@@ -171,9 +198,11 @@ export default {
       this.drawer = false
     },
     displayCustomise(){
-      this.show = 'customise'
-      this.title = 'Customise Character'
-      this.drawer = false
+      this.show = 'customise';
+      this.title = 'Customise Character';
+      this.drawer = false;
+      this.state = 'loaded';
+      this.setProfileImage();
     },
     displaySettings(){
       this.show = 'settings'
@@ -218,6 +247,48 @@ export default {
         this.state = 'error';
       }
     },
+    async importImage() {
+      console.log('In ImportImage');
+      if (!this.selectedFile) {this.data = "No File Chosen"}
+
+      let formData = new FormData();
+      formData.append("test", this.selectedFile);
+
+      await fetch('http://localhost:3000/api/upload?uname=' + 'Isaac', {
+        method: 'POST',
+        body: formData
+      })
+      .then((result) => {
+          console.log('Success:', result);
+          if(result.status == 200){
+              this.loading = false;
+          }
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+      });
+
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + 'Isaac');
+      this.json = await data.json();
+      this.data = this.json.data;
+      //console.log(this.data);
+
+      var imgPath = "http://localhost:3000/" + this.data;
+      //console.log(imgPath);
+
+      document.getElementById('profilepic').src=imgPath;
+
+      console.log('HERE');
+    },
+    async setProfileImage() {
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + 'Isaac');
+      this.json = await data.json();
+      this.data = this.json.data;
+
+      var imgPath = "http://localhost:3000/" + this.data;
+
+      document.getElementById('profilepic').src=imgPath;
+    }
   }
 
 };
