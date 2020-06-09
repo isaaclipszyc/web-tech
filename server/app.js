@@ -12,11 +12,28 @@ var credentials = {key: privateKey, cert: certificate}
 
 const db = require('./api/database');
 const cors = require("cors");
+const multer = require('multer');
+var path = require('path');
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '.png') //Appending .jpg
+    console.log("In filename");
+  }
+})
+
+var upload = multer({ storage: storage })
+
 
 // var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
 
 var app = express();
+
+app.use('/uploads', express.static('uploads'));
 
 var httpsServer = https.createServer(credentials, app);
 
@@ -41,10 +58,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
-
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
 
 app.get('/',(request, response) => {
     response.json({
@@ -54,11 +67,26 @@ app.get('/',(request, response) => {
 
 app.get('/api/getUsers', db.getUsers);
 app.get('/api/getLeaderboard', db.getLeaderboard);
+app.get('/api/getProfilePicture', db.getProfilePicture);
 app.post('/api/getHighscore', db.getHighscore)
 app.post('/api/login', db.checkLogin);
 app.post('/api/registerAccount', db.registerAccount);
 app.post('/api/resetPassword', db.resetPassword);
 app.post('/api/updateHighscore', db.updateHighscore);
+
+app.post('/api/upload', upload.single('test'), function (req, res, next) {
+  console.log(req.file.path);
+
+  var uname = req.query.uname;
+  console.log(uname);
+
+  //THEN SAVE PATH TO PROFILE IMAGE
+  db.storeFilePath(uname, req.file.path);
+
+  response.json({
+    message:"success"
+  })
+});
 
 function notFound(request, response, next){
     const error = new Error('Not Found - ' +  request.originalUrl);
@@ -76,5 +104,6 @@ function errorHandler(error, request, response, next){
 
 app.use(notFound);
 app.use(errorHandler);
+
 
 module.exports = app;

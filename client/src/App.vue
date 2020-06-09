@@ -39,7 +39,7 @@
                 <v-list-item-icon>
                   <v-icon>mdi-tshirt-crew</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Snake</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Profile</v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-icon>
@@ -85,8 +85,8 @@
         <div v-if="show == 'game'" class="grid-container">
           <div class="item1"></div>
           <div class="item2"></div>
-          <div class="item3"></div>  
-          <div class="item4">Highscore: {{highscore}}</div>            
+          <div class="item3"></div>
+          <div class="item4">Highscore: {{highscore}}</div>
           <div class="item5">
             <v-dialog
               v-model="highscoreDialog"
@@ -146,6 +146,28 @@
         </div>
         <div v-if="show == 'customise'">
 
+        <v-card>
+          <v-row justify="space-around">
+            <v-avatar size="62">>
+              <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
+            </v-avatar>
+          </v-row>
+        </v-card>
+
+            <v-card>
+              <v-file-input
+                accept="image/png, image/jpeg, image/bmp"
+                placeholder="Pick an avatar"
+                prepend-icon="mdi-camera"
+                label="Avatar"
+                v-model="selectedFile"
+              ></v-file-input>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn right @click="importImage">Set avatar</v-btn>
+              </v-card-actions>
+            </v-card>
+
         </div>
         <v-dialog
           v-model="welcomeDialog"
@@ -166,6 +188,7 @@
 
 import LoginRegisterForm from './components/LoginRegisterForm.vue';
 import Game from './components/Game.vue';
+
 
 export default {
   name: 'App',
@@ -190,6 +213,10 @@ export default {
     fixedHeader: true,
     username: '',
     leaderboard: '',
+    showUpload: true,
+    previewImage: null,
+    selectedFile: null,
+    fileData: null,
     gamePlaying: false,
     highscore: 0,
     highscoreDialog: false,
@@ -228,13 +255,17 @@ export default {
     },
     displayCustomise(){
       this.show = 'customise';
-      this.title = 'Customise Snake';
+      this.setProfileImage();
+      this.title = 'Customise profile';
       this.drawer = false;
     },
     displaySettings(){
       this.show = 'settings';
-      this.title = 'Account Settings';
+      this.title = 'Customise Character';
       this.drawer = false;
+      this.state = 'loaded';
+      //this.title = 'Account Settings';
+      //this.drawer = false;
     },
     logout(){
       this.username = '';
@@ -280,6 +311,48 @@ export default {
         this.error = err;
         this.state = 'error';
       }
+    },
+    async importImage() {
+      console.log('In ImportImage');
+      if (!this.selectedFile) {this.data = "No File Chosen"}
+
+      let formData = new FormData();
+      formData.append("test", this.selectedFile);
+
+      await fetch('http://localhost:3000/api/upload?uname=' + this.username, {
+        method: 'POST',
+        body: formData
+      })
+      .then((result) => {
+          console.log('Success:', result);
+          if(result.status == 200){
+              this.loading = false;
+          }
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+      });
+
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
+      this.json = await data.json();
+      this.data = this.json.data;
+      //console.log(this.data);
+
+      var imgPath = "http://localhost:3000/" + this.data;
+      //console.log(imgPath);
+
+      document.getElementById('profilepic').src=imgPath;
+
+      console.log('HERE');
+    },
+    async setProfileImage() {
+      const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
+      this.json = await data.json();
+      this.data = this.json.data;
+
+      var imgPath = "http://localhost:3000/" + this.data;
+
+      document.getElementById('profilepic').src=imgPath;
     },
     beginGame() {
       this.gamePlaying = true;
@@ -418,7 +491,7 @@ export default {
 }
 
 
-table th + th { 
+table th + th {
   border-left:1px solid #dddddd;
   border-bottom: 2px solid black;
   text-align: center;
