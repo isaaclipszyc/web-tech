@@ -37,12 +37,6 @@
               </v-list-item>
               <v-list-item>
                 <v-list-item-icon>
-                  <v-icon>mdi-tshirt-crew</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Profile</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-icon>
                   <v-icon>mdi-account-box</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title class="font-weight-bold" @click="displaySettings()">Account Settings</v-list-item-title>
@@ -62,14 +56,22 @@
         <div id="loginRegisterForm" v-if="show == 'loginRegister'">
             <v-dialog
               v-model="errorDialog"
-              overlay-opacity="10%"
+              width="400"
             >
               <v-card class="modal">
-                <v-card-text>
-                  <p>{{errorMessage}}</p>
-                </v-card-text>
+                  <v-card-title class="white lighten-2">
+                    {{errorMessage}}
+                  </v-card-title>
               </v-card>
             </v-dialog>
+            <v-card>
+              <v-card-text>
+                You are a space pirate worm with the dream of getting rich from collecting red gems!
+              </v-card-text>
+              <v-card-text>
+                This game puts a fun twist on the classic snake game!
+              </v-card-text>
+            </v-card>
             <LoginRegisterForm @authentication="authenticator"/>
         </div>
         <div v-if="show == 'leaderboard'" id="leaderboard">
@@ -85,24 +87,51 @@
         <div v-if="show == 'game'" class="grid-container">
           <div class="item1"></div>
           <div class="item2"></div>
-          <div class="item3"></div>
+          <div class="item3">
+          </div>
           <div class="item4">Highscore: {{highscore}}</div>
           <div class="item5">
             <v-dialog
               v-model="highscoreDialog"
-              overlay-opacity="20%"
               width="400"
             >
               <v-card class="modal">
+                <v-card-title class="justify-center white lighten-2">
+                  You got a new highscore!!!
+                </v-card-title>
                 <v-card-text>
-                  <p style="margin-top: 2%;">You got a new highscore!!!</p>
-                  <p> You beat your previous highscore by {{difference}} points!</p>
+                  You beat your previous highscore by {{difference}} points!
                 </v-card-text>
               </v-card>
             </v-dialog>
-              <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
+             <v-dialog
+              v-model="gameOverDialog"
+              width="400"
+            >
+              <v-card class="modal">
+                <v-card-title class="justify-center white lighten-2">
+                  Game Over :(
+                </v-card-title>
+              </v-card>
+            </v-dialog>
+            <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
           </div>
-          <div class="item6"></div>
+          <div class="item6">
+            <v-card>
+              <v-card-title>
+                Instructions:
+              </v-card-title>
+              <v-card-text>
+                1. Use the arrow keys to change direction.
+              </v-card-text>
+              <v-card-text>
+                2. Use the worm holes to jump around space.
+              </v-card-text>
+              <v-card-text>
+                3. Beware of the obstacles!!!
+              </v-card-text>
+            </v-card>
+          </div>
           <div class="item7"></div>
           <div class="item8">
             <v-btn @click="beginGame()">Play</v-btn>
@@ -129,30 +158,20 @@
                       type="password"
                   />
                   <div class="text-center">
-                  <a
-                      href="#"
-                      class="mt-3 overline no-text-decoration"
-                      @click="step = 3"
-                  >
-                      Forgot your password?
-                  </a>
                   </div>
                   <div class="text-center mt-6">
-                  <v-btn @click="login()">Log In</v-btn>
                   </div>
               </v-form>
               </v-card-text>
             </v-card>
-        </div>
-        <div v-if="show == 'customise'">
 
-        <v-card>
-          <v-row justify="space-around">
-            <v-avatar size="62">>
-              <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
-            </v-avatar>
-          </v-row>
-        </v-card>
+            <v-card>
+              <v-row justify="space-around">
+                <v-avatar size="62">>
+                  <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
+                </v-avatar>
+              </v-row>
+            </v-card>
 
             <v-card>
               <v-file-input
@@ -167,17 +186,19 @@
                 <v-btn right @click="importImage">Set avatar</v-btn>
               </v-card-actions>
             </v-card>
+        </div>
+        <div v-if="show == 'customise'">
 
+          
         </div>
         <v-dialog
           v-model="welcomeDialog"
-          overlay-opacity="20%"
           width="400"
         >
           <v-card class="modal">
-            <v-card-text>
-              <p style="margin-top: 2%;">Welcome {{username}}!</p>
-            </v-card-text>
+            <v-card-title class="justify-center white lighten-2">
+              Welcome {{username}}!
+            </v-card-title>
           </v-card>
         </v-dialog>
       </v-app>
@@ -222,6 +243,7 @@ export default {
     highscoreDialog: false,
     difference: 0,
     welcomeDialog: false,
+    gameOverDialog: false,
   }),
 
   methods: {
@@ -253,19 +275,12 @@ export default {
       this.title = 'Wormhole';
       this.drawer = false;
     },
-    displayCustomise(){
-      this.show = 'customise';
-      this.setProfileImage();
-      this.title = 'Customise profile';
-      this.drawer = false;
-    },
     displaySettings(){
+      this.setProfileImage();
       this.show = 'settings';
-      this.title = 'Customise Character';
+      this.title = 'Account Settings';
       this.drawer = false;
       this.state = 'loaded';
-      //this.title = 'Account Settings';
-      //this.drawer = false;
     },
     logout(){
       this.username = '';
@@ -363,6 +378,8 @@ export default {
         this.highscore = value;
         this.saveHighscore();
         this.highscoreDialog = true;
+      } else {
+        this.gameOverDialog = true;
       }
       this.gamePlaying = false;
     },
@@ -440,9 +457,6 @@ export default {
   margin-bottom: 10%;
 }
 
-#gameArea {
-  display: grid;
-}
 
 .grid-container {
   display: grid;
@@ -454,7 +468,7 @@ export default {
 
 .grid-container > div {
   background-color: rgba(187, 111, 231, 0.9);
-  text-align: center;
+  /* text-align: center; */
   font-size: 20px;
   vertical-align: middle;
 }
@@ -467,6 +481,10 @@ export default {
   margin: 10%;
 }
 
+#modalText {
+  margin-top: 2%; 
+  font-size: 20px;
+}
 
 #scoreboard {
   margin-top: 5%;

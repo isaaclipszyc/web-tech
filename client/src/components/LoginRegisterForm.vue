@@ -6,8 +6,8 @@
                     <v-card class="evelation-12 card">
                         <v-dialog
                             v-model="loading"
-                            overlay-opacity="10%"
                             persistent
+                            width="300"
                         >
                             <v-card class="modal">
                                 <v-card-text>
@@ -21,7 +21,6 @@
                         </v-dialog>
                         <v-dialog
                             v-model="emailSent"
-                            overlay-opacity="10%"
                         >
                             <v-card class="modal">
                                 <v-card-text>
