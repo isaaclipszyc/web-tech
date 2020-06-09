@@ -10,8 +10,10 @@
         </v-app-bar>
         <v-navigation-drawer
           v-model="drawer"
-          absolute
           temporary
+          app
+          height="90%"
+          id="navTool"
         >
           <v-list
             nav
@@ -37,7 +39,7 @@
                 <v-list-item-icon>
                   <v-icon>mdi-tshirt-crew</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Character</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" @click="displayCustomise()">Customise Snake</v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-icon>
@@ -47,12 +49,12 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
+          <template v-slot:append>
+            <div id="logoutButton">
+              <v-btn @click="logout()" >Logout</v-btn>
+            </div>
+          </template>
         </v-navigation-drawer>
-
-        <!-- <div v-if="show == 'login'">
-          <p style="margin: 5%"> This is a simple SPA that uses the Vue framework for the client-side (with Vuetify for nicely working and aesthetically pleasing components) and Express for the server-side. It uses sqlite3 as an embedded SQL database. This project was created by Isaac Lipszyc (il17557) and Ben Fozard (bf17813).</p>
-          <v-btn large color="primary" id="users_button" @click="showUsers()">Users</v-btn>
-        </div> -->
         <div v-if="show == 'loading'">
           <p> {{state}} </p>
           <p v-if="error != ' '"> {{error}} </p>
@@ -74,7 +76,23 @@
 
         </div>
         <div v-if="show == 'game'">
-
+          <div id="scoreboard">
+            <p>Highscore: {{highscore}}</p>
+          </div>
+           <v-dialog
+                v-model="highscoreDialog"
+                overlay-opacity="10%"
+            >
+                <v-card class="modal">
+                    <v-card-text>
+                        <p>You got a new highschore!!! You beat your previous highschore by {{difference}} points!</p>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+          <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
+          <div>
+            <v-btn @click="beginGame()">Play</v-btn>
+          </div>
         </div>
         <div v-if="show == 'settings'">
           
@@ -108,12 +126,14 @@
 <script>
 
 import LoginRegisterForm from './components/LoginRegisterForm.vue';
+import Game from './components/Game.vue';
 
 export default {
   name: 'App',
 
   components: {
-    LoginRegisterForm
+    LoginRegisterForm,
+    Game,
   },
 
   data: () => ({
@@ -128,11 +148,13 @@ export default {
     data: [],
     error: ' ',
     state: ' ',
-    height: 600,
     fixedHeader: true,
     username: '',
-    highscore: '',
     leaderboard: '',
+    gamePlaying: false,
+    highscore: 0,
+    highscoreDialog: false,
+    difference: 0,
   }),
 
   methods: {
@@ -148,24 +170,30 @@ export default {
       }
     },
     displayLeaderboard(){
-      this.show = 'leaderboard'
-      this.title = 'Leaderboard'
-      this.drawer = false
+      this.show = 'leaderboard';
+      this.title = 'Leaderboard';
+      this.drawer = false;
     },
     displayGame(){
-      this.show = 'game'
-      this.title = 'Lil\' Marco'
-      this.drawer = false
+      this.show = 'game';
+      this.title = 'Lil\' Marco';
+      this.drawer = false;
     },
     displayCustomise(){
-      this.show = 'customise'
-      this.title = 'Customise Character'
-      this.drawer = false
+      this.show = 'customise';
+      this.title = 'Customise Snake';
+      this.drawer = false;
     },
     displaySettings(){
-      this.show = 'settings'
-      this.title = 'Account Settings'
-      this.drawer = false
+      this.show = 'settings';
+      this.title = 'Account Settings';
+      this.drawer = false;
+    },
+    logout(){
+      this.username = '';
+      this.drawer = false;
+      this.title = 'Lil\' Marco'
+      this.show = 'loginRegister';
     },
     getHeaders(){
       var s = new Set();
@@ -205,6 +233,46 @@ export default {
         this.state = 'error';
       }
     },
+    beginGame() {
+      this.gamePlaying = true;
+    },
+    printScore(value) {
+      if(value > this.highscore){
+        this.difference = value - this.highscore;
+        this.highscore = value;
+        this.saveHighscore();
+        this.highschoreDialog = true;
+      }
+      this.gamePlaying = false;
+    },
+    async saveHighscore(){
+      try{
+          var packaged = {
+              username: this.username,
+              highscore: this.highschore,
+          }
+      await fetch('http://localhost:3000/api/newHighscore', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(packaged)
+          })
+          .then((result) => {
+              console.log('Success:', result);
+              if(result.status != 200){
+                  this.saveHighscore();
+              }
+          })
+          .catch((error) => {
+              console.error('Error:', error);
+          });
+      } catch(err){
+          this.error = err;
+          this.state = 'error';
+      }
+    }
+
   }
 
 };
@@ -217,19 +285,34 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
 }
 
-#users_button {
+#scoreboard {
+  margin-top: 5%;
+}
+
+#logoutButton {
+  margin-bottom: 10%;
+}
+
+/* #users_button {
   position: relative;
   margin: 10%;
   top: 50%
-}
+} */
 
 #table {
   margin: 5%;
 }
 
+#loginRegisterForm {
+  margin-top: 2%;
+}
+
+#navTool {
+  margin-top: 60px;
+}
 
 
 table th + th { 
