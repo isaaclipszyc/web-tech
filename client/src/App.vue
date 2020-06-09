@@ -72,7 +72,7 @@
             </v-dialog>
             <LoginRegisterForm @authentication="authenticator"/>
         </div>
-        <div v-if="show == 'leaderboard'">
+        <div v-if="show == 'leaderboard'" id="leaderboard">
           <v-data-table
             :headers="headers"
             :items="data"
@@ -109,7 +109,7 @@
           </div>
           <div class="item9"></div>
         </div>
-        <div v-if="show == 'settings'">
+        <div v-if="show == 'settings'" id="settings">
           <v-card class="modal">
               <v-card-text>
                 <v-form ref="settings">
@@ -382,8 +382,16 @@ export default {
 .grid-container > div {
   background-color: rgba(187, 111, 231, 0.9);
   text-align: center;
-  font-size: 30px;
+  font-size: 20px;
   vertical-align: middle;
+}
+
+#leaderboard{
+  margin: 10%;
+}
+
+#settings{
+  margin: 10%;
 }
 
 
