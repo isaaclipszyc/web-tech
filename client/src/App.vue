@@ -89,6 +89,7 @@
             :items="data"
             class="elevation-1"
             fixed-header
+            disable-sort
             id ="dataTable"
           >
             <template v-slot:item.imagePath="{ item }">
@@ -136,20 +137,6 @@
             <p>1. Use the arrow keys to change direction.</p>
             <p>2. Use the blue worm holes to jump around space.</p>
             <p>3. Beware of the black obstacles!!!</p>
-            <!-- <v-card>
-              <v-card-title>
-                Instructions:
-              </v-card-title>
-              <v-card-text>
-                1. Use the arrow keys to change direction.
-              </v-card-text>
-              <v-card-text>
-                2. Use the blue worm holes to jump around space.
-              </v-card-text>
-              <v-card-text>
-                3. Beware of the black obstacles!!!
-              </v-card-text>
-            </v-card> -->
           </div>
           <div class="item7"></div>
           <div class="item8">
@@ -158,50 +145,28 @@
           <div class="item9"></div>
         </div>
         <div v-if="show == 'settings'" id="settings">
-          <v-card class="modal">
-              <v-card-text>
-                <v-form ref="settings">
-                  <v-text-field
-                      v-model="usernameLogin"
-                      label="Username"
-                      :rules="usernameRules"
-                      append-icon="mdi-account-box"
-                      type="text"
-                  />
-                  <v-text-field
-                      id="password"
-                      v-model="passwordLogin"
-                      label="Password"
-                      :rules="passwordRules"
-                      append-icon="mdi-lock"
-                      type="password"
-                  />
-                  <div class="text-center">
-                  </div>
-                  <div class="text-center mt-6">
-                  </div>
-              </v-form>
-              </v-card-text>
-            </v-card>
-
-            <v-card>
-              <v-row justify="space-around">
-                <v-avatar size="100">
-                  <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
-                </v-avatar>
-              </v-row>
-              <v-file-input
-                accept="image/png, image/jpeg, image/bmp"
-                placeholder="Pick an avatar"
-                prepend-icon="mdi-camera"
-                label="Avatar"
-                v-model="selectedFile"
-              ></v-file-input>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="deep-purple accent-4 white--text" right @click="importImage">Set avatar</v-btn>
-              </v-card-actions>
-            </v-card>
+          <v-card width="400" class="dpEditor">
+            <v-row justify="space-around">
+              <v-avatar size="200" style="margin-top: 5%;">
+                <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
+              </v-avatar>
+            </v-row>
+            <v-card-text>
+                  {{username}}
+            </v-card-text>
+            <v-file-input
+              accept="image/png, image/jpeg, image/bmp"
+              placeholder="Pick an avatar"
+              prepend-icon="mdi-camera"
+              label="Avatar"
+              v-model="selectedFile"
+              style="margin: 2%;"
+            ></v-file-input>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="deep-purple accent-4 white--text" right @click="importImage">Set avatar</v-btn>
+            </v-card-actions>
+          </v-card>
         </div>
         <div v-if="show == 'customise'">
 
@@ -329,13 +294,6 @@ export default {
         }
       });
     },
-    // convert (json) {
-    //   var output = []
-    //   json.forEach(data => {
-    //     output.push(data.data);
-    //   });
-    //   return output;
-    // },
     async showUsers(){
       try{
         this.state = 'loading';
@@ -376,14 +334,11 @@ export default {
       const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
       this.json = await data.json();
       this.data = this.json.data;
-      //console.log(this.data);
 
       var imgPath = "http://localhost:3000/" + this.data;
-      //console.log(imgPath);
 
       document.getElementById('profilepic').src=imgPath;
 
-      console.log('HERE');
     },
     async setProfileImage() {
       const data = await fetch('http://localhost:3000/api/getProfilePicture?uname=' + this.username);
@@ -476,10 +431,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  /* margin-top: 60px; */
 }
-
-
 
 
 #logoutButton {
@@ -497,7 +449,6 @@ export default {
 
 .grid-container > div {
   background-color: rgba(187, 111, 231, 0.9);
-  /* text-align:  */
   font-size: 20px;
   vertical-align: middle;
   padding: 2%;
@@ -515,7 +466,10 @@ export default {
 }
 
 #settings{
-  margin: 10%;
+  margin-top: 10%;
+  margin-left: 20%;
+  margin-right: 20;
+  /* align-content: center; */
 }
 
 #modalText {
@@ -526,12 +480,6 @@ export default {
 #scoreboard {
   margin-top: 5%;
 }
-
-/* #users_button {
-  position: relative;
-  margin: 10%;
-  top: 50%
-} */
 
 #table {
   margin: 5%;

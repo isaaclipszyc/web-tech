@@ -90,7 +90,7 @@
             ];
             const randomDirectionIndex = Math.floor(Math.random() * 4);
             this.direction = this.constants[randomDirectionIndex];
-            this.targetCell = null;
+            this.gem = null;
             this.createObstacles();
             this.createWormholes();
         },
@@ -102,7 +102,7 @@
                 return;
             }
             this.clear();
-            this.setTargetCell();
+            this.createGem();
 
             const newHeadCell = {
                 x: this.snake[0].x + this.direction.move.x,
@@ -114,9 +114,9 @@
                 console.log("emmitted score");
             }
 
-            if (this.hitTarget()) {
-                this.snake.unshift(this.targetCell);
-                this.targetCell = null;
+            if (this.hitGem()) {
+                this.snake.unshift(this.gem);
+                this.gem = null;
                 this.scores++;
             } else {
                 this.snake.unshift(newHeadCell);
@@ -144,7 +144,6 @@
             this.board.beginPath();
             this.drawWormholes(this.wormholes[0], "#6698FF");
             this.board.closePath();
-
 
             setTimeout(this.move, this.getMoveDelay());
         },
@@ -218,18 +217,18 @@
                 this.direction = newDirection;
             }
         },
-        setTargetCell() {
-            if (!this.targetCell) {
-                let targetCell = this.getRandomCell();
-                while (this.bodyLength(targetCell) > 0 && this.notSameLocation(targetCell)) {
-                    targetCell = this.getRandomCell();
+        createGem() {
+            if (!this.gem) {
+                let gem = this.getRandomCell();
+                while (this.bodyLength(gem) > 0 && this.notSameLocation(gem)) {
+                    gem = this.getRandomCell();
                 }
-                this.targetCell = targetCell;
+                this.gem = gem;
             }
             this.board.beginPath();
             this.board.rect(
-                this.targetCell.x * this.cellSize,
-                this.targetCell.y * this.cellSize,
+                this.gem.x * this.cellSize,
+                this.gem.y * this.cellSize,
                 this.cellSize,
                 this.cellSize
             );
@@ -298,10 +297,10 @@
             return this.snake.filter(({ x, y }) => x === cell.x && y === cell.y)
                 .length;
         },
-        hitTarget() {
+        hitGem() {
             return (
-                this.snake[0].x + this.direction.move.x === this.targetCell.x &&
-                this.snake[0].y + this.direction.move.y === this.targetCell.y
+                this.snake[0].x + this.direction.move.x === this.gem.x &&
+                this.snake[0].y + this.direction.move.y === this.gem.y
             );
         },
         hitHole() {
