@@ -193,6 +193,7 @@
         <div v-if="show == 'customise'">
 
 
+
         </div>
         <v-dialog
           v-model="welcomeDialog"
