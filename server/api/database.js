@@ -82,14 +82,12 @@ const getHighscore = (request, response) => {
   const body = request.body;
   const username = body.username;
   var params = [username]
-  console.log(params);
   db.all(sql, params, (err, rows) => {
       if (err) {
           response.status(400).json({"error":err.message});
 
         return;
       }
-      console.log(rows)
       response.json({
           "message":"success",
           "data":rows

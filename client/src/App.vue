@@ -32,23 +32,23 @@
               v-model="group"
               active-class="deep-purple--text text--accent-4"
             >
-              <v-list-item>
+              <v-list-item @click="displayGame()">
                 <v-list-item-icon>
                   <v-icon>mdi-gamepad-square</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displayGame()">Game</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" >Game</v-list-item-title>
               </v-list-item>
-              <v-list-item>
+              <v-list-item @click="displayLeaderboard()">
                 <v-list-item-icon>
                   <v-icon>mdi-podium</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold"  @click="displayLeaderboard()">Leaderboard</v-list-item-title>
+                <v-list-item-title class="font-weight-bold"  >Leaderboard</v-list-item-title>
               </v-list-item>
-              <v-list-item>
+              <v-list-item @click="displaySettings()">
                 <v-list-item-icon>
                   <v-icon>mdi-account-box</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="font-weight-bold" @click="displaySettings()">Account Settings</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" >Account Settings</v-list-item-title>
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -145,7 +145,7 @@
           <div class="item9"></div>
         </div>
         <div v-if="show == 'settings'" id="settings">
-          <v-card width="400" class="dpEditor">
+          <v-card width="400" class="mx-auto">
             <v-row justify="space-around">
               <v-avatar size="200" style="margin-top: 5%;">
                 <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
@@ -468,8 +468,7 @@ export default {
 #settings{
   margin-top: 10%;
   margin-left: 20%;
-  margin-right: 20;
-  /* align-content: center; */
+  margin-right: 20%;
 }
 
 #modalText {
