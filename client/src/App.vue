@@ -6,7 +6,16 @@
           dark
         >
         <v-app-bar-nav-icon v-if="show != 'loginRegister'" @click="drawer = true" ></v-app-bar-nav-icon>
-        <h1 class="mx-auto" >{{ title }}</h1>
+        <!-- <v-spacer v-if="show != 'loginRegister' && show != 'game'"></v-spacer> -->
+        <h1 class="mx-auto" v-if="show != 'loginRegister' && show != 'game'">{{ title }}</h1>
+        <!-- <v-spacer v-if="show != 'loginRegister' && show != 'game'"></v-spacer> -->
+        <v-img v-if="show == 'loginRegister' || show == 'game'"
+          class="mx-auto" 
+          src="./assets/logo.png"
+          max-height="70"
+          max-width="400"
+          contain
+         ></v-img>
         </v-app-bar>
         <v-navigation-drawer
           v-model="drawer"
@@ -45,7 +54,7 @@
           </v-list>
           <template v-slot:append>
             <div id="logoutButton">
-              <v-btn @click="logout()" >Logout</v-btn>
+              <v-btn color="deep-purple accent-4 white--text" @click="logout()" >Logout</v-btn>
             </div>
           </template>
         </v-navigation-drawer>>
@@ -89,7 +98,7 @@
           <div class="item2"></div>
           <div class="item3">
           </div>
-          <div class="item4">Highscore: {{highscore}}</div>
+          <div class="item4" style="width: 210px;">Highscore: {{highscore}}</div>
           <div class="item5">
             <v-dialog
               v-model="highscoreDialog"
@@ -106,7 +115,7 @@
             </v-dialog>
              <v-dialog
               v-model="gameOverDialog"
-              width="400"
+              width="300"
             >
               <v-card class="modal">
                 <v-card-title class="justify-center white lighten-2">
@@ -116,8 +125,12 @@
             </v-dialog>
             <Game :isPlaying="gamePlaying" @scoreAchieved="printScore"/>
           </div>
-          <div class="item6">
-            <v-card>
+          <div class="item6" style="width: 210px;">
+            <h3 style="margin-bottom: 2%;"> Instructions: </h3>
+            <p>1. Use the arrow keys to change direction.</p>
+            <p>2. Use the blue worm holes to jump around space.</p>
+            <p>3. Beware of the black obstacles!!!</p>
+            <!-- <v-card>
               <v-card-title>
                 Instructions:
               </v-card-title>
@@ -125,16 +138,16 @@
                 1. Use the arrow keys to change direction.
               </v-card-text>
               <v-card-text>
-                2. Use the worm holes to jump around space.
+                2. Use the blue worm holes to jump around space.
               </v-card-text>
               <v-card-text>
-                3. Beware of the obstacles!!!
+                3. Beware of the black obstacles!!!
               </v-card-text>
-            </v-card>
+            </v-card> -->
           </div>
           <div class="item7"></div>
           <div class="item8">
-            <v-btn @click="beginGame()">Play</v-btn>
+            <v-btn color="deep-purple accent-4 white--text" @click="beginGame()">Play</v-btn>
           </div>
           <div class="item9"></div>
         </div>
@@ -183,7 +196,7 @@
               ></v-file-input>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn right @click="importImage">Set avatar</v-btn>
+                <v-btn color="deep-purple accent-4 white--text" right @click="importImage">Set avatar</v-btn>
               </v-card-actions>
             </v-card>
         </div>
@@ -468,9 +481,17 @@ export default {
 
 .grid-container > div {
   background-color: rgba(187, 111, 231, 0.9);
-  /* text-align: center; */
+  /* text-align:  */
   font-size: 20px;
   vertical-align: middle;
+  padding: 2%;
+  padding-left: 2%;
+  padding-right: 2%;
+  overflow: hidden;
+}
+
+#item6 {
+  float: left;
 }
 
 #leaderboard{

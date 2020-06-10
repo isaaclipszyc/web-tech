@@ -61,7 +61,7 @@
                                     </a>
                                     </div>
                                     <div class="text-center mt-6">
-                                    <v-btn @click="login()">Log In</v-btn>
+                                    <v-btn color="deep-purple accent-4 white--text" @click="login()">Log In</v-btn>
                                     </div>
                                 </v-form>
                                 </v-card-text>
@@ -77,7 +77,7 @@
                                     <h5 class="text-center overline mb-3">Please create an account to continue</h5>
                                 </v-card-text>
                                 <div class="text-center mb-6">
-                                    <v-btn @click="step = 2">Register</v-btn>
+                                    <v-btn color="deep-purple accent-4 white--text" @click="step = 2">Register</v-btn>
                                 </div>
                                 </div>
                             </v-col>
@@ -97,7 +97,7 @@
                                         <h5 class="text-center overline mb-3">Please log in</h5>
                                     </v-card-text>
                                     <div class="text-center mb-6">
-                                        <v-btn @click="step = 1">Log In</v-btn>
+                                        <v-btn color="deep-purple accent-4 white--text" @click="step = 1">Log In</v-btn>
                                     </div>
                                 </div>
                             </v-col>
@@ -136,7 +136,7 @@
                                         type="password"
                                     />
                                     <div class="text-center mt-6">
-                                    <v-btn @click="createAccount()">Create account</v-btn>
+                                    <v-btn color="deep-purple accent-4 white--text" @click="createAccount()">Create account</v-btn>
                                     </div>
                                 </v-form>
                                 </v-card-text>
@@ -157,7 +157,7 @@
                                         <h5 class="text-center overline mb-3">Please log in</h5>
                                     </v-card-text>
                                     <div class="text-center mb-6">
-                                        <v-btn @click="step = 1">Log In</v-btn>
+                                        <v-btn color="deep-purple accent-4 white--text" @click="step = 1">Log In</v-btn>
                                     </div>
                                 </div>
                             </v-col>
@@ -173,7 +173,7 @@
                                         type="text"
                                     />
                                     <div class="text-center mt-6">
-                                    <v-btn @click="resetPassword()">Reset Password</v-btn>
+                                    <v-btn color="deep-purple accent-4 white--text" @click="resetPassword()">Reset Password</v-btn>
                                     </div>
                                 </v-form>
                                 </v-card-text>
@@ -349,4 +349,5 @@
     #modal {
         margin: 5%;
     }
+
 </style>

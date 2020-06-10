@@ -142,12 +142,9 @@
             this.board.closePath();
 
             this.board.beginPath();
-            this.drawWormholes(this.wormholes[0], "yellow");
+            this.drawWormholes(this.wormholes[0], "#6698FF");
             this.board.closePath();
 
-            // this.board.beginPath();
-            // this.drawWormholes(this.wormholes[1], "purple");
-            // this.board.closePath();
 
             setTimeout(this.move, this.getMoveDelay());
         },
@@ -261,7 +258,7 @@
             var numOfObstacles = 0;
             while(numOfObstacles < 10){
                 var randomLocation = this.getRandomCell();
-                if(Math.abs(randomLocation.x - this.getMiddleCell()) > 10 || Math.abs(randomLocation.y - this.getMiddleCell()) > 10){
+                if(Math.abs(randomLocation.x - this.getMiddleCell()) > 5 || Math.abs(randomLocation.y - this.getMiddleCell()) > 5){
                     obstacles.push(randomLocation);
                     numOfObstacles++;
                 }
