@@ -158,7 +158,7 @@ const getUsers = (request, response) => {
 }
 
 const getLeaderboard = (request, response) => {
-    var sql = "SELECT username, highscore FROM user ORDER BY highscore DESC"
+    var sql = "SELECT imagePath, username, highscore FROM user ORDER BY highscore DESC"
     var params = []
     db.all(sql, params, (err, rows) => {
         if (err) {

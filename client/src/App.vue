@@ -91,6 +91,12 @@
             fixed-header
             id ="dataTable"
           >
+            <template v-slot:item.imagePath="{ item }">
+              <v-avatar size="50">
+                <img :src="toURL(item.imagePath)"/>
+              </v-avatar>
+
+            </template>
           </v-data-table>
         </div>
         <div v-if="show == 'game'" class="grid-container">
@@ -180,13 +186,10 @@
 
             <v-card>
               <v-row justify="space-around">
-                <v-avatar size="62">>
+                <v-avatar size="100">
                   <img id="profilepic" src="http://localhost:3000/uploads/default.png"/>
                 </v-avatar>
               </v-row>
-            </v-card>
-
-            <v-card>
               <v-file-input
                 accept="image/png, image/jpeg, image/bmp"
                 placeholder="Pick an avatar"
@@ -202,7 +205,8 @@
         </div>
         <div v-if="show == 'customise'">
 
-          
+
+
         </div>
         <v-dialog
           v-model="welcomeDialog"
@@ -311,9 +315,17 @@ export default {
       });
 
       return Array.from(s).map(a => {
-        return {
-          text: a.toUpperCase(),
-          value: a
+        if (a === "imagePath") {
+          return {
+            text: '',
+            value: a
+          }
+        }
+        else {
+          return {
+            text: a.toUpperCase(),
+            value: a
+          }
         }
       });
     },
@@ -446,6 +458,10 @@ export default {
           this.error = err;
           this.state = 'error';
       }
+    },
+    toURL(string) {
+      var url = "http://localhost:3000/" + string;
+      return url;
     }
 
   }
@@ -503,7 +519,7 @@ export default {
 }
 
 #modalText {
-  margin-top: 2%; 
+  margin-top: 2%;
   font-size: 20px;
 }
 
