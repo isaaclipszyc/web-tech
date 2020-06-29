@@ -16,47 +16,62 @@
     data: () => ({
         cellSize: 10,
         boardSize: 50,
-        speed: 20,
+        speed: 60,
         scores: 0,
+        snake: [
+                {
+                    x: 0,
+                    y: 0
+                }
+        ],
         obstacles: [],
         wormholes: [],
-        constants: [{
+        directions: [{
             direction: "left",
             keyCode: 37,
             move: {
-            x: -1,
+            x: -0.25,
             y: 0
             }
         },
         {
-            direction: "top",
+            direction: "up",
             keyCode: 38,
             move: {
             x: 0,
-            y: -1
+            y: -0.25
             }
         },
         {
             direction: "right",
             keyCode: 39,
             move: {
-            x: 1,
+            x: 0.25,
             y: 0
             }
         },
         {
-            direction: "bottom",
+            direction: "down",
             keyCode: 40,
             move: {
             x: 0,
-            y: 1
+            y: 0.25
             }
         }],
+        newDirection: {
+            direction: "",
+            keyCode: 0,
+            move: {
+            x: 0,
+            y: 0
+            }
+        },
+        elongate: false,
     }),
 
     computed: {
         canvasSize() {
-            return this.cellSize * this.boardSize;
+            return  this.cellSize * this.boardSize;
         }
     },
     mounted() {
@@ -89,7 +104,8 @@
                 }
             ];
             const randomDirectionIndex = Math.floor(Math.random() * 4);
-            this.direction = this.constants[randomDirectionIndex];
+            this.direction = this.directions[randomDirectionIndex];
+            this.newDirection = this.direction;
             this.gem = null;
             this.createObstacles();
             this.createWormholes();
@@ -104,34 +120,9 @@
             this.clear();
             this.createGem();
 
-            const newHeadCell = {
-                x: this.snake[0].x + this.direction.move.x,
-                y: this.snake[0].y + this.direction.move.y
-            };
-
-            if (this.outOfBounds(newHeadCell) || this.bodyLength(this.snake[0]) > 1 || this.hitObstacle(newHeadCell)) {
-                this.$emit('scoreAchieved', this.scores);
-                console.log("emmitted score");
-            }
-
-            if (this.hitGem()) {
-                this.snake.unshift(this.gem);
-                this.gem = null;
-                this.scores++;
-            } else {
-                this.snake.unshift(newHeadCell);
-                this.snake.pop();
-            }
-
-            if (this.hitHole()){
-                if(newHeadCell.x === this.wormholes[0].a.x){
-                    newHeadCell.x = this.wormholes[0].b.x;
-                    newHeadCell.y = this.wormholes[0].b.y;
-                } else{
-                    newHeadCell.x = this.wormholes[0].a.x;
-                    newHeadCell.y = this.wormholes[0].a.y;
-                }
-            }
+            if(this.direction !== this.newDirection && this.snake[0].x % 1 === 0 && this.snake[0].y % 1 === 0){
+                this.direction = this.newDirection;
+            } 
 
             this.board.beginPath();
             this.snake.forEach(this.drawSnakeBody);
@@ -144,6 +135,41 @@
             this.board.beginPath();
             this.drawWormholes(this.wormholes[0], "#6698FF");
             this.board.closePath();
+
+            const newHeadCell = {
+                x: this.snake[0].x + this.direction.move.x,
+                y: this.snake[0].y + this.direction.move.y
+            };
+
+            if (this.hitGem()) {
+                for(var i = 0; i < 4; i++){
+                    var newHead = {
+                        x: this.gem.x + this.direction.move.x * i,
+                        y: this.gem.y + this.direction.move.y * i
+                    }
+                    this.snake.unshift(newHead);
+                }
+                this.gem = null;
+                this.scores++;
+            } else {
+                this.snake.unshift(newHeadCell);
+                this.snake.pop();
+            }
+
+            if (this.hitWormhole()){
+                if(newHeadCell.x === this.wormholes[0].a.x){
+                    newHeadCell.x = this.wormholes[0].b.x;
+                    newHeadCell.y = this.wormholes[0].b.y;
+                } else{
+                    newHeadCell.x = this.wormholes[0].a.x;
+                    newHeadCell.y = this.wormholes[0].a.y;
+                }
+            }
+
+            if (this.outOfBounds(this.snake[0]) || this.bodyLength(this.snake[0]) > 1 || this.hitObstacle(this.snake[0])) {
+                this.$emit('scoreAchieved', this.scores);
+                console.log("emmitted score");
+            }
 
             setTimeout(this.move, this.getMoveDelay());
         },
@@ -158,7 +184,7 @@
                 this.cellSize,
                 this.cellSize
             );
-            var purple = 'rgb(187, 111, 231)'
+            var purple = 'rgb(187, 111, 231)';
             this.board.fillStyle = purple;
             this.board.fill();
         },
@@ -198,7 +224,7 @@
             return x < 0 || y < 0 || x >= this.boardSize || y >= this.boardSize;
         },
         hitObstacle({x, y}) {
-            var hit = false
+            var hit = false;
             this.obstacles.forEach(obstacle => {
                 if( x === obstacle.x && y === obstacle.y){
                     hit = true;
@@ -207,14 +233,14 @@
             return hit;
         },
         onKeyPress(event) {
-            const newDirection = this.constants.find(c => c.keyCode === event.keyCode);
+            const newDirection = this.directions.find(c => c.keyCode === event.keyCode);
 
             if (!newDirection) {
                 return;
             }
 
             if (Math.abs(newDirection.keyCode - this.direction.keyCode) !== 2) {
-                this.direction = newDirection;
+                this.newDirection = newDirection;
             }
         },
         createGem() {
@@ -299,11 +325,11 @@
         },
         hitGem() {
             return (
-                this.snake[0].x + this.direction.move.x === this.gem.x &&
-                this.snake[0].y + this.direction.move.y === this.gem.y
+                this.snake[0].x + (this.direction.move.x * 4) === this.gem.x &&
+                this.snake[0].y + (this.direction.move.y * 4) === this.gem.y
             );
         },
-        hitHole() {
+        hitWormhole() {
             return (
                 this.snake[0].x === this.wormholes[0].a.x &&
                 this.snake[0].y === this.wormholes[0].a.y ||

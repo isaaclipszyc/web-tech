@@ -6,9 +6,7 @@
           dark
         >
         <v-app-bar-nav-icon v-if="show != 'loginRegister'" @click="drawer = true" ></v-app-bar-nav-icon>
-        <!-- <v-spacer v-if="show != 'loginRegister' && show != 'game'"></v-spacer> -->
         <h1 class="mx-auto" v-if="show != 'loginRegister' && show != 'game'">{{ title }}</h1>
-        <!-- <v-spacer v-if="show != 'loginRegister' && show != 'game'"></v-spacer> -->
         <v-img v-if="show == 'loginRegister' || show == 'game'"
           class="mx-auto" 
           src="./assets/logo.png"
