@@ -14,7 +14,7 @@
     "vue": "^2.6.11",
     "vue-image-crop-upload": "^2.5.0",
     "vue-upload-image": "^1.1.5",
-    "vuetify": "^2.2.11"
+    "vuetify": "^2.6.10"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.3.0",
